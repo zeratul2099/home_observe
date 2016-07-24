@@ -43,6 +43,5 @@ optional arguments:
   Planned features:
   - additional notification services (e.g. mail)
   - python 3
-  - notification on network leave
   - add setup.py
 

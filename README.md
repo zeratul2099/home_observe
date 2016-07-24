@@ -1,5 +1,11 @@
 # home_observe
-a small python daemon which observes the home network and sends a notification, if a new host joins the network.
+A small python daemon which observes the home network and sends a notification, if a new host joins the network.
+It repeatedly make a 'nmap -sP -PR'-network scan and memorizes all found hosts. If a new host is found, it sends
+a notification via notifymyandroid. Found hosts will not be scanned for 14 minutes (configurable). This is neccassary
+due most mobile devices will experience a massive battery drain if pinged every few seconds. Hosts, which were away
+for more than 15 minutes (configurable) will considered a new, and a new notification is send on reappear.
+Hosts a recognized by the first part of their full network name (e.g. host1.fritz.box is recognized as host1).
+
 
 Dependencies:
 - python2

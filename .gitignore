@@ -95,4 +95,4 @@ settings.py
 pynma.py
 
 # storage file
-heredump.pkl
+homedump.pkl

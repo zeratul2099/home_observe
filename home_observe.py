@@ -67,7 +67,7 @@ def here():
     if len(notify_list) > 0:
         p = pynma.PyNMA(nma_api_key)
         # TODO add retry here
-        p.push('HereObserve', 'New devices online', ', '.join(notify_list))
+        p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
  
     with open('heredump.pkl', 'w') as dumpfile:
         pickle.dump(heredump, dumpfile)

@@ -15,9 +15,13 @@ HereObserve, a local network observer
 
 optional arguments:
   -h, --help     show this help message and exit
+  
   -d, --daemon   daemon mode
+  
   -s, --status   print status and exit
+  
   -a, --active   print active hosts and exit
+  
   --sleep SLEEP  sleep after every scan (in seconds)
   
   

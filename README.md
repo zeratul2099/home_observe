@@ -1,12 +1,20 @@
 # home_observe
 a small python daemon which observes the home network and sends a notification, if a new host joins the network.
 
+Dependencies:
+- python2
+- nmap
+- pynma
+
+Note: home_observe must run as root due to network scans done by nmap
+
+
 Installation:
 
 - Set up a account at https://notifymyandroid.com/ and generate an api-key.
 - Copy settings_example.py to settings.py and edit it according your needs, including the nma-apt-key.
 - Install pynma from https://github.com/uskr/pynma.git in your PYTHONPATH or copy pynma.py to the home_observe directory
-- 'python2 home_observe.py'
+- 'sudo python2 home_observe.py'
 
 
 Usage: home_observe.py [-h] [-d] [-s] [-a] [--sleep SLEEP]

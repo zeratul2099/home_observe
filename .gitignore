@@ -93,3 +93,6 @@ settings.py
 
 # pynma
 pynma.py
+
+# storage file
+heredump.pkl

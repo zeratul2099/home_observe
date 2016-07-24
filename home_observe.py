@@ -6,11 +6,10 @@ import pickle
 
 import pynma
 
-from settings import network, last_seen_delta, nma_api_key
+from settings import network, last_seen_delta, nma_api_key, notify_offline
 
 offline_notified = set()
 
-# TODO notify on disappear
 
 def get_heredump():
     try:
@@ -87,7 +86,7 @@ def here():
         # TODO add retry here
         if len(notify_list) > 0:
             p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
-        if len(notify_offline_list) > 0:
+        if len(notify_offline_list) > 0 and notify_offline is True:
             p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list))
  
     with open('heredump.pkl', 'w') as dumpfile:

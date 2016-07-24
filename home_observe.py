@@ -8,6 +8,7 @@ import pynma
 
 from settings import network, last_seen_delta, nma_api_key
 
+last_excluded_hosts = None
 
 # TODO notify on disappear
 
@@ -31,6 +32,8 @@ def get_active_hosts(heredump):
             hosts.append(host)
     return sorted(hosts)
 
+
+
 def get_status():
     now = datetime.utcnow()
     heredump = get_heredump()
@@ -42,14 +45,18 @@ def get_status():
 def here():
     now = datetime.utcnow()
     heredump = get_heredump()
-    excluded_hosts = ','.join(get_active_hosts(heredump))
+    excluded_hosts = get_active_hosts(heredump)
     if excluded_hosts:
-        nmap_command = 'nmap -sP -PR --exclude %s %s' % (excluded_hosts, network)
+        nmap_command = 'nmap -sP -PR --exclude %s %s' % (','.join(excluded_hosts), network)
     else:
         nmap_command = 'nmap -sP -PR %s' % network
+    global last_excluded_hosts
+    if last_excluded_hosts is None:
+        last_excluded_hosts = excluded_hosts
     print nmap_command
     result = os.popen(nmap_command)
     notify_list = []
+    seen_hosts = []
     for line in result.readlines():
         if 'done' in line:
             print line
@@ -57,6 +64,7 @@ def here():
             print line
             host = line.split(' ')[4]
             last_seen = heredump.get(host, datetime(1970,1,1,0,0))
+            seen_hosts.append(host)
             ago = now - last_seen
             print '%s last seen %s ago' % (host, now - last_seen)
             if ago > timedelta(minutes=last_seen_delta):
@@ -64,13 +72,23 @@ def here():
 
                 notify_list.append('%s (%s)' % (host.partition('.')[0], ago))
             heredump[host] = now
-    if len(notify_list) > 0:
+    notify_disappear_list = []
+    for recheck_host in sorted(set(excluded_hosts) - set(last_excluded_hosts)):
+        if recheck_host not in seen_hosts:
+            print 'NOTIFY OFFLINE'
+            notify_disappear_list.append(recheck_host)
+    if len(notify_list) > 0 or len(notify_disappear_list) > 0:
         p = pynma.PyNMA(nma_api_key)
         # TODO add retry here
-        p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
+        if len(notify_list) > 0:
+            p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
+        if len(notify_disappear_list) > 0:
+            p.push('HomeObserve', 'Devices offline', ', '.join(notify_disappear_list))
  
     with open('heredump.pkl', 'w') as dumpfile:
         pickle.dump(heredump, dumpfile)
+
+    last_excluded_hosts = excluded_hosts
 
 def main():
     parser = argparse.ArgumentParser(description='HomeObserve, a local network observer')

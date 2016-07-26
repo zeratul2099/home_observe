@@ -13,13 +13,13 @@ offline_notified = set()
 
 def get_homedump():
     try:
-        with open('homedump.pkl') as dumpfile:
+        with open('homedump.pkl', 'rb') as dumpfile:
             homedump = pickle.load(dumpfile)
         return homedump
-    except Exception, e:
+    except Exception as e:
         import traceback
         traceback.print_exc()
-        print 'file not found', e
+        print('file not found', e)
         return {}
 
 def get_active_hosts(homedump):
@@ -36,36 +36,36 @@ def get_status():
     now = datetime.utcnow()
     homedump = get_homedump()
     result = ''
-    for host, last_seen in homedump.iteritems():
+    for host, last_seen in homedump.items():
         result += '%s:\n\t%s\n' %(host, now - last_seen)
     return result
 
 def home():
     now = datetime.utcnow()
     global offline_notified
-    print 'offline notified', offline_notified
+    print('offline notified', offline_notified)
     homedump = get_homedump()
     excluded_hosts = get_active_hosts(homedump)
     if excluded_hosts:
         nmap_command = 'nmap -sP -PR --exclude %s %s' % (','.join(excluded_hosts), network)
     else:
         nmap_command = 'nmap -sP -PR %s' % network
-    print nmap_command
+    print(nmap_command)
     result = os.popen(nmap_command)
     notify_list = []
     seen_hosts = []
     for line in result.readlines():
         if 'done' in line:
-            print line
+            print(line)
         if 'scan report' in line:
-            print line
+            print(line)
             host = line.split(' ')[4]
             last_seen = homedump.get(host, datetime(1970,1,1,0,0))
             seen_hosts.append(host)
             ago = now - last_seen
-            print '%s last seen %s ago' % (host, now - last_seen)
+            print('%s last seen %s ago' % (host, now - last_seen))
             if ago > timedelta(minutes=last_seen_delta):
-                print 'NOTIFY', host
+                print('NOTIFY', host)
                 try:
                     offline_notified.remove(host)
                 except KeyError:
@@ -77,7 +77,7 @@ def home():
         ago = now - last_seen
         if ago > timedelta(minutes=last_seen_delta) and ago < timedelta(minutes=last_seen_delta + 1):
             if host not in offline_notified:
-                print 'NOTIFY OFFLINE', host
+                print('NOTIFY OFFLINE', host)
                 notify_offline_list.append(host.partition('.')[0])
                 offline_notified.add(host)
     if len(notify_list) > 0 or len(notify_offline_list) > 0:
@@ -88,7 +88,7 @@ def home():
         if len(notify_offline_list) > 0 and notify_offline is True:
             p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list))
  
-    with open('homedump.pkl', 'w') as dumpfile:
+    with open('homedump.pkl', 'wb') as dumpfile:
         pickle.dump(homedump, dumpfile)
 
     last_excluded_hosts = excluded_hosts
@@ -101,10 +101,10 @@ def main():
     parser.add_argument('--sleep', default=1, type=int, help='sleep after every scan (in seconds)')
     args = parser.parse_args()
     if args.active:
-        print '\n'.join(get_active_hosts(get_homedump()))
+        print('\n'.join(get_active_hosts(get_homedump())))
         return
     if args.status:
-        print get_status()
+        print(get_status())
         return
     if args.daemon:
         while(True):

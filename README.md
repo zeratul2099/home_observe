@@ -4,7 +4,7 @@ It repeatedly make a 'nmap -sP -PR'-network scan and memorizes all found hosts. 
 a notification via notifymyandroid. Found hosts will not be scanned for 14 minutes (configurable). This is neccassary
 due most mobile devices will experience a massive battery drain if pinged every few seconds. Hosts, which were away
 for more than 15 minutes (configurable) will considered a new, and a new notification is send on reappear.
-Hosts a recognized by their full network name (e.g. host1.fritz.box). Notification only contain the first part
+Hosts are recognized by their full network name (e.g. host1.fritz.box). Notification only contain the first part
 of the network name (e.g. host1).
 Optionally, a notification is send if a host goes offline / is not seen for 15 minutes.
 

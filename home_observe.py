@@ -22,6 +22,7 @@ def get_homedump():
         print('file not found', e)
         return {}
 
+
 def get_active_hosts(homedump):
     hosts = []
     now = datetime.utcnow()
@@ -31,7 +32,6 @@ def get_active_hosts(homedump):
     return sorted(hosts)
 
 
-
 def get_status():
     now = datetime.utcnow()
     homedump = get_homedump()
@@ -39,6 +39,7 @@ def get_status():
     for host, last_seen in homedump.items():
         result += '%s:\n\t%s\n' %(host, now - last_seen)
     return result
+
 
 def home():
     now = datetime.utcnow()
@@ -92,6 +93,7 @@ def home():
         pickle.dump(homedump, dumpfile)
 
     last_excluded_hosts = excluded_hosts
+
 
 def main():
     parser = argparse.ArgumentParser(description='HomeObserve, a local network observer')

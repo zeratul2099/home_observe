@@ -87,7 +87,10 @@ def home():
         if len(notify_list) > 0:
             p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
         if len(notify_offline_list) > 0 and notify_offline is True:
-            p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list))
+            if len(notify_offline_list) == 1:
+                p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' has left the building')
+            else:
+                p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' have left the building')
  
     with open('homedump.pkl', 'wb') as dumpfile:
         pickle.dump(homedump, dumpfile)

@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 import argparse
 import pickle
+import random
 
 import pynma
 
@@ -87,11 +88,14 @@ def home():
         if len(notify_list) > 0:
             p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
         if len(notify_offline_list) > 0 and notify_offline is True:
-            if len(notify_offline_list) == 1:
-                p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' has left the building')
+            if random.randint(0, 1) == 0:
+                p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' is off the grid')
             else:
-                p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' have left the building')
- 
+                if len(notify_offline_list) == 1:
+                    p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' has left the building')
+                else:
+                    p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' have left the building')
+
     with open('homedump.pkl', 'wb') as dumpfile:
         pickle.dump(homedump, dumpfile)
 

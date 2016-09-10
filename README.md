@@ -11,6 +11,7 @@ Optionally, a notification is send if a host goes offline / is not seen for 15 m
 Dependencies:
 - python3
 - nmap
+- sqlalchemy
 - pynma
 
 Note: home_observe must run as root due to network scans done by nmap

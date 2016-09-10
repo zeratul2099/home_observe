@@ -6,11 +6,28 @@ import pickle
 import random
 
 import pynma
-
-from settings import network, last_seen_delta, nma_api_key, notify_offline
+from sqlalchemy import create_engine, Table, MetaData, Column, String, Integer, DateTime
+from sqlalchemy.exc import OperationalError
+from settings import network, last_seen_delta, nma_api_key, notify_offline, database
 
 offline_notified = set()
 
+
+def get_database():
+    db = create_engine(database)
+    metadata = MetaData(db)
+    log = Table('log', metadata,
+                Column('hostname', String, primary_key=True),
+                Column('status', Integer),
+                Column('timestamp', DateTime, primary_key=True),
+                )
+    try:
+        log.create()
+    except OperationalError:
+        # import traceback
+        # traceback.print_exc()
+        pass
+    return log
 
 def get_homedump():
     try:
@@ -42,9 +59,11 @@ def get_status():
     return result
 
 
-def home():
+def home(log):
     now = datetime.utcnow()
     global offline_notified
+
+
     print('offline notified', offline_notified)
     homedump = get_homedump()
     excluded_hosts = get_active_hosts(homedump)
@@ -68,6 +87,8 @@ def home():
             print('%s last seen %s ago' % (host, now - last_seen))
             if ago > timedelta(minutes=last_seen_delta):
                 print('NOTIFY', host)
+                insert = log.insert()
+                insert.execute(hostname=host, status=1, timestamp=now)
                 try:
                     offline_notified.remove(host)
                 except KeyError:
@@ -80,6 +101,8 @@ def home():
         if ago > timedelta(minutes=last_seen_delta) and ago < timedelta(minutes=last_seen_delta + 1):
             if host not in offline_notified:
                 print('NOTIFY OFFLINE', host)
+                insert = log.insert()
+                insert.execute(hostname=host, status=0, timestamp=now)
                 notify_offline_list.append(host.partition('.')[0])
                 offline_notified.add(host)
     if len(notify_list) > 0 or len(notify_offline_list) > 0:
@@ -116,11 +139,13 @@ def main():
         print(get_status())
         return
     if args.daemon:
+        log = get_database()
         while(True):
-            home()
+            home(log=log)
             time.sleep(args.sleep)
     else:
-        home()
+        log = get_database()
+        home(log=log)
 
 if __name__ == '__main__':
     main()

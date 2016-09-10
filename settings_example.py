@@ -10,3 +10,6 @@ last_seen_delta = 15
 
 # also notify, go offline (not seen in the <last_seen_delta> minutes
 notify_offline = True
+
+# database for logging
+database = 'sqlite:///home_observe.db'

@@ -1,5 +1,6 @@
 import os
 import time
+import socket
 from datetime import datetime, timedelta
 import argparse
 import pickle
@@ -20,6 +21,8 @@ def get_database():
                 Column('hostname', String, primary_key=True),
                 Column('status', Integer),
                 Column('timestamp', DateTime, primary_key=True),
+                Column('ipv4', String),
+                Column('ipv6', String),
                 )
     try:
         log.create()
@@ -87,8 +90,10 @@ def home(log):
             print('%s last seen %s ago' % (host, now - last_seen))
             if ago > timedelta(minutes=last_seen_delta):
                 print('NOTIFY', host)
+                ipv4 = socket.getaddrinfo(host, None, socket.AF_INET)[0][4][0]
+                ipv6 = socket.getaddrinfo(host, None, socket.AF_INET6)[0][4][0]
                 insert = log.insert()
-                insert.execute(hostname=host, status=1, timestamp=now)
+                insert.execute(hostname=host, status=1, timestamp=now, ipv4=ipv4, ipv6=ipv6)
                 try:
                     offline_notified.remove(host)
                 except KeyError:

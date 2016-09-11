@@ -32,6 +32,17 @@ def get_database():
         pass
     return log
 
+def get_addresses(host):
+    try:
+        ipv4 = socket.getaddrinfo(host, None, socket.AF_INET)[0][4][0]
+    except socket.gaierror:
+        ipv4 = ''
+    try:
+        ipv6 = socket.getaddrinfo(host, None, socket.AF_INET6)[0][4][0]
+    except socket.gaierror:
+        ipv6 = ''
+    return ipv4, ipv6
+
 def get_homedump():
     try:
         with open('homedump.pkl', 'rb') as dumpfile:
@@ -90,8 +101,7 @@ def home(log):
             print('%s last seen %s ago' % (host, now - last_seen))
             if ago > timedelta(minutes=last_seen_delta):
                 print('NOTIFY', host)
-                ipv4 = socket.getaddrinfo(host, None, socket.AF_INET)[0][4][0]
-                ipv6 = socket.getaddrinfo(host, None, socket.AF_INET6)[0][4][0]
+                ipv4, ipv6 = get_addresses(host)
                 insert = log.insert()
                 insert.execute(hostname=host, status=1, timestamp=now, ipv4=ipv4, ipv6=ipv6)
                 try:
@@ -106,8 +116,9 @@ def home(log):
         if ago > timedelta(minutes=last_seen_delta) and ago < timedelta(minutes=last_seen_delta + 1):
             if host not in offline_notified:
                 print('NOTIFY OFFLINE', host)
+                ipv4, ipv6 = get_addresses(host)
                 insert = log.insert()
-                insert.execute(hostname=host, status=0, timestamp=now)
+                insert.execute(hostname=host, status=0, timestamp=now, ipv4=ipv4, ipv6=ipv6)
                 notify_offline_list.append(host.partition('.')[0])
                 offline_notified.add(host)
     if len(notify_list) > 0 or len(notify_offline_list) > 0:

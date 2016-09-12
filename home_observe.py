@@ -40,7 +40,10 @@ def get_addresses(host):
     try:
         ipv6_set = set()
         for ipv6_info in socket.getaddrinfo(host, None, socket.AF_INET6):
-            ipv6_set.add(ipv6_info)[4][0]
+            try:
+                ipv6_set.add(ipv6_info)[4][0]
+            except TypeError:
+                pass
         ipv6 = ','.join(list(ipv6_set))
     except socket.gaierror:
         ipv6 = ''

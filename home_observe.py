@@ -7,7 +7,7 @@ import pickle
 import random
 
 import pynma
-from sqlalchemy import create_engine, Table, MetaData, Column, String, Integer, DateTime
+from sqlalchemy import create_engine, Table, MetaData, Column, String, Integer, DateTime, asc
 from sqlalchemy.exc import OperationalError
 from settings import network, last_seen_delta, nma_api_key, notify_offline, database
 
@@ -85,6 +85,21 @@ def get_host_shortname(host):
         shortname = host
     return shortname
 
+def show_database_log(hostname=None):
+    log = get_database()
+    select = log.select().order_by(asc(log.c.timestamp))
+    if hostname:
+        select = select.where(log.c.hostname.contains(hostname))
+    rows = select.execute()
+    for row in rows.fetchall():
+        entry = dict(
+            shortname = get_host_shortname(row.hostname),
+            status = '\033[92mOnline\033[0m' if row.status == 1 else '\033[91mOffline\033[0m',
+            timestamp = row.timestamp.strftime('%d.%m.%Y %H:%M:%S'),
+            ipv4 = row.ipv4,
+            ipv6 = row.ipv6,
+        )
+        print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}'.format(**entry))
 
 def home(log):
     now = datetime.utcnow()
@@ -159,6 +174,8 @@ def main():
     parser.add_argument('-d', '--daemon', default=False, action='store_true', help='daemon mode')
     parser.add_argument('-s', '--status', default=False, action='store_true', help='print status and exit')
     parser.add_argument('-a', '--active', default=False, action='store_true', help='print active hosts and exit')
+    parser.add_argument('-l', '--log', default=False, action='store_true', help='print database log')
+    parser.add_argument('-o', '--host', default=None, help='show only logs of host')
     parser.add_argument('--sleep', default=1, type=int, help='sleep after every scan (in seconds)')
     args = parser.parse_args()
     if args.active:
@@ -166,6 +183,9 @@ def main():
         return
     if args.status:
         print(get_status())
+        return
+    if args.log:
+        show_database_log(hostname=args.host)
         return
     if args.daemon:
         log = get_database()

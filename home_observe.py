@@ -32,6 +32,7 @@ def get_database():
         pass
     return log
 
+
 def get_addresses(host):
     try:
         ipv4 = socket.getaddrinfo(host, None, socket.AF_INET)[0][4][0]
@@ -40,14 +41,12 @@ def get_addresses(host):
     try:
         ipv6_set = set()
         for ipv6_info in socket.getaddrinfo(host, None, socket.AF_INET6):
-            try:
-                ipv6_set.add(ipv6_info)[4][0]
-            except TypeError:
-                pass
+            ipv6_set.add(ipv6_info[4][0])
         ipv6 = ','.join(list(ipv6_set))
     except socket.gaierror:
         ipv6 = ''
     return ipv4, ipv6
+
 
 def get_homedump():
     try:
@@ -77,6 +76,14 @@ def get_status():
     for host, last_seen in homedump.items():
         result += '%s:\n\t%s\n' %(host, now - last_seen)
     return result
+
+
+def get_host_shortname(host):
+    if host.endswith('.fritz.box'):
+        shortname = host.partition('.')[0]
+    else:
+        shortname = host
+    return shortname
 
 
 def home(log):
@@ -114,7 +121,7 @@ def home(log):
                     offline_notified.remove(host)
                 except KeyError:
                     pass
-                notify_list.append('%s (%s)' % (host.partition('.')[0], ago))
+                notify_list.append('%s (%s)' % (get_host_shortname(host), ago))
             homedump[host] = now
     notify_offline_list = []
     for host, last_seen in homedump.items():
@@ -125,7 +132,7 @@ def home(log):
                 ipv4, ipv6 = get_addresses(host)
                 insert = log.insert()
                 insert.execute(hostname=host, status=0, timestamp=now, ipv4=ipv4, ipv6=ipv6)
-                notify_offline_list.append(host.partition('.')[0])
+                notify_offline_list.append(get_host_shortname(host))
                 offline_notified.add(host)
     if len(notify_list) > 0 or len(notify_offline_list) > 0:
         p = pynma.PyNMA(nma_api_key)

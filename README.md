@@ -45,5 +45,4 @@ optional arguments:
   - additional notification services (e.g. mail)
   - nma notification icon
   - add setup.py
-  - backend database for logging
   - webgui

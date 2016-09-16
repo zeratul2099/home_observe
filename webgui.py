@@ -1,5 +1,5 @@
 from flask import Flask
-from sqlalchemy import asc
+from sqlalchemy import desc
 from common import get_host_shortname, get_database
 app = Flask(__name__)
 
@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route('/')
 def main():
     log = get_database()
-    select = log.select().order_by(asc(log.c.timestamp))
+    select = log.select().order_by(desc(log.c.timestamp))
     rows = select.execute()
     result = '<html><body><table>'
     for row in rows.fetchall():

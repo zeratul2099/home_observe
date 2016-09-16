@@ -12,6 +12,7 @@ Dependencies:
 - python3
 - nmap
 - sqlalchemy
+- flask
 - pynma
 
 Note: home_observe must run as root due to network scans done by nmap

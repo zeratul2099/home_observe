@@ -158,6 +158,11 @@ tr.evenodd:hover {
     background: rgba(180,130,130,0.45);
 }
 
+td {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
 .red {
     color: #ff0000;
 }

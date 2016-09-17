@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    </head>
+    <body>
+        <div id='content_container' class='content'>
+            <table>
+            {% for entry in result %}
+                <tr>
+                    <td>{{ entry.shortname }}</td>
+                    <td class='{% if entry.status =='Online' %}green{% elif entry.status == 'Offline' %}red{% endif %}'>{{ entry.status }}</td>
+                    <td>{{ entry.timestamp }}</td>
+                    <td>{{ entry.ipv4 }}</td>
+                    <td>{{ entry.ipv6 }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

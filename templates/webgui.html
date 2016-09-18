@@ -1,12 +1,13 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="/static/styles.css">
+        <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
         <title>HomeObserve WebLog</title>
     </head>
     <body>
         <div id='content_container' class='content'>
-        {% if hostname %}<h2>{{ hostname }}</h2>
-        <a href='..'>back</a><br>
+        {% if hostname %}<h3>{{ hostname }}</h3>
+        <h4><a href='..'>back</a></h4>
         {% endif %}
             <table>
             {% for entry in result %}

@@ -5,10 +5,13 @@
     </head>
     <body>
         <div id='content_container' class='content'>
+        {% if hostname %}<h2>{{ hostname }}</h2>
+        <a href='..'>back</a><br>
+        {% endif %}
             <table>
             {% for entry in result %}
                 <tr>
-                    <td>{{ entry.shortname }}</td>
+                    <td><a href='{{ entry.shortname }}'>{{ entry.shortname }}</a></td>
                     <td class='{% if entry.status =='Online' %}green{% elif entry.status == 'Offline' %}red{% endif %}'>{{ entry.status }}</td>
                     <td>{{ entry.timestamp }}</td>
                     <td>{{ entry.ipv4 }}</td>

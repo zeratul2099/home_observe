@@ -24,7 +24,7 @@ def main(hostname=None):
             ipv6 = row.ipv6,
         )
         result.append(entry)
-    return render_template('webgui.html', result=result)
+    return render_template('webgui.html', result=result, hostname=hostname)
 
 
 with app.test_request_context():

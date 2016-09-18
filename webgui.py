@@ -6,10 +6,13 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def main():
+@app.route('/<hostname>')
+def main(hostname=None):
     cet = pytz.timezone('CET')
     log = get_database()
     select = log.select().order_by(desc(log.c.timestamp))
+    if hostname:
+        select = select.where(log.c.hostname.contains(hostname))
     rows = select.execute()
     result = list()
     for row in rows.fetchall():

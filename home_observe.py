@@ -77,6 +77,20 @@ def show_database_log(hostname=None):
         )
         print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}'.format(**entry))
 
+
+def send_message_retry(p, message, retries=3):
+
+    for retry in range(retries):
+        try:
+            p.push('HomeObserve', message)
+            break
+        except socket.gaierror:
+            print('retry')
+            time.sleep(1)
+            continue
+
+
+
 def home(log):
     now = datetime.utcnow()
     global offline_notified
@@ -127,17 +141,17 @@ def home(log):
                 offline_notified.add(host)
     if len(notify_list) > 0 or len(notify_offline_list) > 0:
         p = pynma.PyNMA(nma_api_key)
-        # TODO add retry here
         if len(notify_list) > 0:
-            p.push('HomeObserve', 'New devices online', ', '.join(notify_list))
+            send_messsage_retry(p, 'New devices online', ', '.join(notify_list))
+        
         if len(notify_offline_list) > 0 and notify_offline is True:
             if random.randint(0, 1) == 0:
-                p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' is off the grid')
+                send_message_retry(p, 'Devices offline', ', '.join(notify_offline_list) + ' is off the grid')
             else:
                 if len(notify_offline_list) == 1:
-                    p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' has left the building')
+                    send_message_retry(p, 'Devices offline', ', '.join(notify_offline_list) + ' has left the building')
                 else:
-                    p.push('HomeObserve', 'Devices offline', ', '.join(notify_offline_list) + ' have left the building')
+                    send_message_retry(p, 'Devices offline', ', '.join(notify_offline_list) + ' have left the building')
 
     with open('homedump.pkl', 'wb') as dumpfile:
         pickle.dump(homedump, dumpfile)

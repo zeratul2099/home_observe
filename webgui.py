@@ -1,6 +1,6 @@
 import pytz
-from flask import Flask, url_for, render_template
-from sqlalchemy import desc
+from flask import Flask, url_for, render_template, request
+from sqlalchemy import desc, func
 from common import get_host_shortname, get_database
 app = Flask(__name__)
 
@@ -8,11 +8,23 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/<hostname>')
 def main(hostname=None):
+    page = request.args.get('page')
+    pagesize = 50
     cet = pytz.timezone('CET')
     log = get_database()
     select = log.select().order_by(desc(log.c.timestamp))
+    count = log.select()
     if hostname:
         select = select.where(log.c.hostname.contains(hostname))
+        count = count.where(log.c.hostname.contains(hostname))
+    if page is not None:
+        count = count.count().execute().fetchone()[0]
+        maxpages = count // pagesize
+        print(page)
+        select = select.limit(pagesize)
+        select = select.offset(int(page) * pagesize)
+    else:
+        maxpages = None
     rows = select.execute()
     result = list()
     for row in rows.fetchall():
@@ -24,7 +36,7 @@ def main(hostname=None):
             ipv6 = row.ipv6,
         )
         result.append(entry)
-    return render_template('webgui.html', result=result, hostname=hostname)
+    return render_template('webgui.html', result=result, hostname=hostname, page=page, maxpages=maxpages)
 
 
 with app.test_request_context():

@@ -7,17 +7,24 @@
     <body>
         <div id='content_container' class='content'>
         {% if hostname %}<h3>{{ hostname }}</h3>
-        <h4><a href='..'>back</a></h4>
+        <h4><a href='..?page=0'>back</a></h4>
         {% else %}
         <h3>Overview</h3>
         {% endif %}
+            <h4 style='text-align: center'>
+            {% if page %}
+                {% if page != '0' %}<a href='?page={{ page|int - 1 }}'>prev</a>{% else %}prev{% endif %}
+            {{ page|int + 1 }}
+                {% if page|int < maxpages %}<a href='?page={{ page|int + 1 }}'>next</a>{% else %}next{% endif %}
+            {% endif %}
+            </h4>
             <table>
                 <tr class='tablehdr'>
                     <th>Hostname</th><th>Status</th><th>Timestamp</th><th>IPv4</th><th>IPv6</th>
                 </tr>
             {% for entry in result %}
                 <tr>
-                    <td><a href='{{ entry.shortname }}'>{{ entry.shortname }}</a></td>
+                    <td><a href='{{ entry.shortname }}?page=0'>{{ entry.shortname }}</a></td>
                     <td class='{% if entry.status =='Online' %}green{% elif entry.status == 'Offline' %}red{% endif %}'>{{ entry.status }}</td>
                     <td>{{ entry.timestamp }}</td>
                     <td>{{ entry.ipv4 }}</td>
@@ -25,6 +32,13 @@
                 </tr>
             {% endfor %}
             </table>
+            <h4 style='text-align: center'>
+            {% if page %}
+                {% if page != '0' %}<a href='?page={{ page|int - 1 }}'>prev</a>{% else %}prev{% endif %}
+            {{ page|int + 1 }}
+                {% if page|int < maxpages %}<a href='?page={{ page|int + 1 }}'>next</a>{% else %}next{% endif %}
+            {% endif %}
+            </h4>
         </div>
     </body>
 </html>

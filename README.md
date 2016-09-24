@@ -48,3 +48,7 @@ optional arguments:
   - nma notification icon
   - add setup.py
   - webgui
+    - paging
+    - plots
+    - sorting
+

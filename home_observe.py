@@ -142,7 +142,7 @@ def home(log):
     if len(notify_list) > 0 or len(notify_offline_list) > 0:
         p = pynma.PyNMA(nma_api_key)
         if len(notify_list) > 0:
-            send_messsage_retry(p, 'New devices online', ', '.join(notify_list))
+            send_message_retry(p, 'New devices online', ', '.join(notify_list))
         
         if len(notify_offline_list) > 0 and notify_offline is True:
             if random.randint(0, 1) == 0:

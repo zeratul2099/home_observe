@@ -78,11 +78,11 @@ def show_database_log(hostname=None):
         print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}'.format(**entry))
 
 
-def send_message_retry(p, message, retries=3):
+def send_message_retry(p, header, message, retries=3):
 
     for retry in range(retries):
         try:
-            p.push('HomeObserve', message)
+            p.push('HomeObserve', header, message)
             break
         except socket.gaierror:
             print('retry')

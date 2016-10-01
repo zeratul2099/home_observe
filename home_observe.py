@@ -112,7 +112,7 @@ def home(log):
             print(line)
         if 'scan report' in line:
             print(line)
-            host = line.split(' ')[4]
+            host = line.split(' ')[4].strip()
             last_seen = homedump.get(host, datetime(1970,1,1,0,0))
             seen_hosts.append(host)
             ago = now - last_seen

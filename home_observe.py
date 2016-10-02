@@ -46,7 +46,7 @@ def get_active_hosts(homedump):
     hosts = []
     now = datetime.utcnow()
     for host, last_seen in sorted(homedump.items()):
-        if now - last_seen < timedelta(minutes=last_seen_delta-1):
+        if now - last_seen < timedelta(minutes=last_seen_delta-2):
             hosts.append(host)
     return sorted(hosts)
 

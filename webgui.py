@@ -9,6 +9,8 @@ app = Flask(__name__)
 @app.route('/<hostname>')
 def main(hostname=None):
     page = request.args.get('page')
+    if page is None:
+        page = '0'
     pagesize = 50
     cet = pytz.timezone('CET')
     log = get_database()
@@ -17,7 +19,7 @@ def main(hostname=None):
     if hostname:
         select = select.where(log.c.hostname.contains(hostname))
         count = count.where(log.c.hostname.contains(hostname))
-    if page is not None:
+    if page != 'all':
         count = count.count().execute().fetchone()[0]
         maxpages = count // pagesize
         print(page)

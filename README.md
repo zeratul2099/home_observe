@@ -44,7 +44,6 @@ optional arguments:
   
   
   Planned features:
-  - recheck on going offline to avoid on/off-behaviour
   - additional notification services (e.g. mail)
   - nma notification icon
   - add setup.py

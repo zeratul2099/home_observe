@@ -7,7 +7,11 @@ import argparse
 import pickle
 import random
 
-import pynma
+try:
+    import pynma
+except ImportError:
+    pynma = None
+
 from sqlalchemy import asc
 from settings import network, last_seen_delta, nma_api_key, notify_offline
 from common import get_host_shortname, get_database
@@ -139,7 +143,7 @@ def home(log):
                 insert.execute(hostname=host, status=0, timestamp=now, ipv4=ipv4, ipv6=ipv6)
                 notify_offline_list.append(get_host_shortname(host))
                 offline_notified.add(host)
-    if len(notify_list) > 0 or len(notify_offline_list) > 0:
+    if pynma and nma_api_key and (len(notify_list) > 0 or len(notify_offline_list) > 0):
         p = pynma.PyNMA(nma_api_key)
         if len(notify_list) > 0:
             send_message_retry(p, 'New devices online', ', '.join(notify_list))

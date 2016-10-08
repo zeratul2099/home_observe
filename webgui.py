@@ -1,6 +1,6 @@
 import pytz
 from flask import Flask, url_for, render_template, request
-from sqlalchemy import desc, func
+from sqlalchemy import desc, func, select as select_stm
 from common import get_host_shortname, get_database
 app = Flask(__name__)
 
@@ -15,12 +15,12 @@ def main(hostname=None):
     cet = pytz.timezone('CET')
     log = get_database()
     select = log.select().order_by(desc(log.c.timestamp))
-    count = log.select()
+    count = select_stm([func.count()]).select_from(log)
     if hostname:
         select = select.where(log.c.hostname.contains(hostname))
         count = count.where(log.c.hostname.contains(hostname))
     if page != 'all':
-        count = count.count().execute().fetchone()[0]
+        count = count.execute().fetchone()[0]
         maxpages = count // pagesize
         print(page)
         select = select.limit(pagesize)

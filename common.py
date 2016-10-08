@@ -17,11 +17,11 @@ def get_database():
     db = create_engine(database)
     metadata = MetaData(db)
     log = Table('log', metadata,
-                Column('hostname', String, primary_key=True),
+                Column('hostname', String(256), primary_key=True),
                 Column('status', Integer),
                 Column('timestamp', DateTime, primary_key=True),
-                Column('ipv4', String),
-                Column('ipv6', String),
+                Column('ipv4', String(32)),
+                Column('ipv6', String(256)),
                 )
     try:
         log.create()

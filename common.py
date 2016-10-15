@@ -14,7 +14,7 @@ def get_host_shortname(host):
 
 
 def get_database():
-    db = create_engine(database)
+    db = create_engine(database, pool_recycle=6*3600)
     metadata = MetaData(db)
     log = Table('host_log', metadata,
                 Column('hostname', String(256), primary_key=True),

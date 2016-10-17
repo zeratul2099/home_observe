@@ -1,7 +1,7 @@
 import pytz
-from flask import Flask, url_for, render_template, request
+from flask import Flask, url_for, render_template, request, jsonify
 from sqlalchemy import desc, func
-from common import get_host_shortname, get_database
+from common import get_host_shortname, get_database, get_homedump, get_active_hosts, get_status
 app = Flask(__name__)
 
 
@@ -39,6 +39,19 @@ def main(hostname=None):
         )
         result.append(entry)
     return render_template('webgui.html', result=result, hostname=hostname, page=page, maxpages=maxpages)
+
+
+@app.route('/api/active')
+def api_active():
+    return jsonify(*get_active_hosts(get_homedump()))
+
+
+@app.route('/api/status')
+def api_status():
+    status = dict()
+    for host, delta in get_status().items():
+        status[host] = str(delta)
+    return jsonify(**status)
 
 
 with app.test_request_context():

@@ -1,8 +1,9 @@
-
+from datetime import datetime, timedelta
+import pickle
 from sqlalchemy import create_engine, Table, MetaData, Column, String, Integer, DateTime
 from sqlalchemy.exc import OperationalError
 
-from settings import database
+from settings import database, last_seen_delta
 
 
 def get_host_shortname(host):
@@ -30,3 +31,34 @@ def get_database():
         # traceback.print_exc()
         pass
     return log
+
+
+def get_homedump():
+    try:
+        with open('homedump.pkl', 'rb') as dumpfile:
+            homedump = pickle.load(dumpfile)
+        return homedump
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print('file not found', e)
+        return {}
+
+
+def get_status():
+    now = datetime.utcnow()
+    homedump = get_homedump()
+    result = dict()
+    for host, last_seen in homedump.items():
+        result[host] = now - last_seen
+    return result
+
+
+def get_active_hosts(homedump):
+    hosts = []
+    now = datetime.utcnow()
+    for host, last_seen in sorted(homedump.items()):
+        if now - last_seen < timedelta(minutes=last_seen_delta-2):
+            hosts.append(host)
+    return sorted(hosts)
+

@@ -14,7 +14,7 @@ except ImportError:
 
 from sqlalchemy import asc
 from settings import network, last_seen_delta, nma_api_key, notify_offline
-from common import get_host_shortname, get_database
+from common import get_host_shortname, get_database, get_homedump, get_active_hosts, get_status
 
 offline_notified = set()
 
@@ -32,37 +32,6 @@ def get_addresses(host):
     except socket.gaierror:
         ipv6 = ''
     return ipv4, ipv6
-
-
-def get_homedump():
-    try:
-        with open('homedump.pkl', 'rb') as dumpfile:
-            homedump = pickle.load(dumpfile)
-        return homedump
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print('file not found', e)
-        return {}
-
-
-def get_active_hosts(homedump):
-    hosts = []
-    now = datetime.utcnow()
-    for host, last_seen in sorted(homedump.items()):
-        if now - last_seen < timedelta(minutes=last_seen_delta-2):
-            hosts.append(host)
-    return sorted(hosts)
-
-
-def get_status():
-    now = datetime.utcnow()
-    homedump = get_homedump()
-    result = ''
-    for host, last_seen in homedump.items():
-        result += '%s:\n\t%s\n' %(host, now - last_seen)
-    return result
-
 
 
 def show_database_log(hostname=None):
@@ -176,7 +145,7 @@ def main():
         print('\n'.join(get_active_hosts(get_homedump())))
         return
     if args.status:
-        print(get_status())
+        print('\n'.join(['%s:\n\t%s\n' %(host, delta) for host, delta in get_status().items()]))
         return
     if args.log:
         show_database_log(hostname=args.host)

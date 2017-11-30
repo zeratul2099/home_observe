@@ -13,7 +13,7 @@ except ImportError:
     pynma = None
 
 from sqlalchemy import asc
-from settings import network, last_seen_delta, nma_api_key, notify_offline
+from settings import network, last_seen_delta, nma_api_key, notify_offline, notify_blacklist
 from common import get_host_shortname, get_database, get_homedump, get_active_hosts, get_status
 
 offline_notified = set()
@@ -99,7 +99,8 @@ def home(log):
                     offline_notified.remove(host)
                 except KeyError:
                     pass
-                notify_list.append('%s (%s)' % (get_host_shortname(host), ago))
+                if host.lower() not in notify_blacklist:
+                    notify_list.append('%s (%s)' % (get_host_shortname(host), ago))
             homedump[host] = now
     notify_offline_list = []
     for host, last_seen in homedump.items():
@@ -110,7 +111,8 @@ def home(log):
                 ipv4, ipv6 = get_addresses(host)
                 insert = log.insert()
                 insert.execute(hostname=host, status=0, timestamp=now, ipv4=ipv4, ipv6=ipv6)
-                notify_offline_list.append(get_host_shortname(host))
+                if host.lower() not in notify_blacklist:
+                    notify_offline_list.append(get_host_shortname(host))
                 offline_notified.add(host)
     if pynma and nma_api_key and (len(notify_list) > 0 or len(notify_offline_list) > 0):
         p = pynma.PyNMA(nma_api_key)

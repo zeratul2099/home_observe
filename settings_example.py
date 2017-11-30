@@ -11,5 +11,8 @@ last_seen_delta = 15
 # also notify if device goes offline (not seen in the <last_seen_delta> minutes)
 notify_offline = True
 
+# do not notify about this hosts
+notify_blacklist = [ '']
+
 # database for logging
 database = 'sqlite:///home_observe.db'

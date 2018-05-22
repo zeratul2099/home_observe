@@ -2,8 +2,9 @@
 # e.g. 192.168.178.1-150
 network = ''
 
-# get from notifymyandroid.com
-nma_api_key = ''
+# get from pushover.net
+pa_app_token = ''
+pa_user_key = ''
 
 # limit of a host must be offline/away to be notified again when comming online. In minutes
 last_seen_delta = 15

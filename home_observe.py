@@ -6,14 +6,10 @@ from datetime import datetime, timedelta
 import argparse
 import pickle
 import random
-
-try:
-    import pynma
-except ImportError:
-    pynma = None
+import requests
 
 from sqlalchemy import asc
-from settings import network, last_seen_delta, nma_api_key, notify_offline, notify_blacklist
+from settings import network, last_seen_delta, notify_offline, notify_blacklist, pa_app_token, pa_user_key
 from common import get_host_shortname, get_database, get_homedump, get_active_hosts, get_status
 
 offline_notified = set()
@@ -51,11 +47,16 @@ def show_database_log(hostname=None):
         print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}'.format(**entry))
 
 
-def send_message_retry(p, header, message, retries=3):
+def send_message_retry(header, message, retries=3):
 
     for retry in range(retries):
         try:
-            p.push('HomeObserve', header, message)
+            r = requests.post('https://api.pushover.net/1/messages.json', data = {
+                'token': pa_app_token,
+                'user': pa_user_key,
+                'message': message
+            })
+            print(r.text)
             break
         except socket.gaierror:
             print('retry')
@@ -114,19 +115,18 @@ def home(log):
                 if host.lower() not in notify_blacklist:
                     notify_offline_list.append(get_host_shortname(host))
                 offline_notified.add(host)
-    if pynma and nma_api_key and (len(notify_list) > 0 or len(notify_offline_list) > 0):
-        p = pynma.PyNMA(nma_api_key)
+    if pa_app_token and pa_user_key and (len(notify_list) > 0 or len(notify_offline_list) > 0):
         if len(notify_list) > 0:
-            send_message_retry(p, 'New devices online', ', '.join(notify_list))
+            send_message_retry('New devices online', ', '.join(notify_list))
         
         if len(notify_offline_list) > 0 and notify_offline is True:
             if random.randint(0, 1) == 0:
-                send_message_retry(p, 'Devices offline', ', '.join(notify_offline_list) + ' is off the grid')
+                send_message_retry('Devices offline', ', '.join(notify_offline_list) + ' is off the grid')
             else:
                 if len(notify_offline_list) == 1:
-                    send_message_retry(p, 'Devices offline', ', '.join(notify_offline_list) + ' has left the building')
+                    send_message_retry('Devices offline', ', '.join(notify_offline_list) + ' has left the building')
                 else:
-                    send_message_retry(p, 'Devices offline', ', '.join(notify_offline_list) + ' have left the building')
+                    send_message_retry('Devices offline', ', '.join(notify_offline_list) + ' have left the building')
 
     with open('homedump.pkl', 'wb') as dumpfile:
         pickle.dump(homedump, dumpfile)

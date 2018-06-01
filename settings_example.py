@@ -13,7 +13,7 @@ last_seen_delta = 15
 notify_offline = True
 
 # do not notify about this hosts
-notify_blacklist = [ '']
+notify_blacklist = ['']
 
 # database for logging
 database = 'sqlite:///home_observe.db'

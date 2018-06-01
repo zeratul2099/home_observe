@@ -38,11 +38,11 @@ def show_database_log(hostname=None):
     rows = select.execute()
     for row in rows.fetchall():
         entry = dict(
-            shortname = get_host_shortname(row.hostname),
-            status = '\033[92mOnline\033[0m' if row.status == 1 else '\033[91mOffline\033[0m',
-            timestamp = row.timestamp.strftime('%d.%m.%Y %H:%M:%S'),
-            ipv4 = row.ipv4,
-            ipv6 = row.ipv6,
+            shortname=get_host_shortname(row.hostname),
+            status='\033[92mOnline\033[0m' if row.status == 1 else '\033[91mOffline\033[0m',
+            timestamp=row.timestamp.strftime('%d.%m.%Y %H:%M:%S'),
+            ipv4=row.ipv4,
+            ipv6=row.ipv6,
         )
         print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}'.format(**entry))
 
@@ -51,11 +51,10 @@ def send_message_retry(header, message, retries=3):
 
     for retry in range(retries):
         try:
-            r = requests.post('https://api.pushover.net/1/messages.json', data = {
-                'token': pa_app_token,
-                'user': pa_user_key,
-                'message': message
-            })
+            r = requests.post(
+                'https://api.pushover.net/1/messages.json',
+                data={'token': pa_app_token, 'user': pa_user_key, 'message': message},
+            )
             print(r.text)
             break
         except socket.gaierror:
@@ -64,11 +63,9 @@ def send_message_retry(header, message, retries=3):
             continue
 
 
-
 def home(log):
     now = datetime.utcnow()
     global offline_notified
-
 
     print('offline notified', offline_notified)
     homedump = get_homedump()
@@ -87,7 +84,7 @@ def home(log):
         if 'scan report' in line:
             print(line)
             host = line.split(' ')[4].strip()
-            last_seen = homedump.get(host, datetime(1970,1,1,0,0))
+            last_seen = homedump.get(host, datetime(1970, 1, 1, 0, 0))
             seen_hosts.append(host)
             ago = now - last_seen
             print('%s last seen %s ago' % (host, now - last_seen))
@@ -118,7 +115,7 @@ def home(log):
     if pa_app_token and pa_user_key and (len(notify_list) > 0 or len(notify_offline_list) > 0):
         if len(notify_list) > 0:
             send_message_retry('New devices online', ', '.join(notify_list))
-        
+
         if len(notify_offline_list) > 0 and notify_offline is True:
             if random.randint(0, 1) == 0:
                 send_message_retry('Devices offline', ', '.join(notify_offline_list) + ' is off the grid')
@@ -147,20 +144,20 @@ def main():
         print('\n'.join(get_active_hosts(get_homedump())))
         return
     if args.status:
-        print('\n'.join(['%s:\n\t%s\n' %(host, delta) for host, delta in get_status().items()]))
+        print('\n'.join(['%s:\n\t%s\n' % (host, delta) for host, delta in get_status().items()]))
         return
     if args.log:
         show_database_log(hostname=args.host)
         return
     if args.daemon:
         log = get_database()
-        while(True):
+        while True:
             home(log=log)
             time.sleep(args.sleep)
     else:
         log = get_database()
         home(log=log)
 
+
 if __name__ == '__main__':
     main()
-

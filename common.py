@@ -15,15 +15,17 @@ def get_host_shortname(host):
 
 
 def get_database():
-    db = create_engine(database, pool_recycle=6*3600)
+    db = create_engine(database, pool_recycle=6 * 3600)
     metadata = MetaData(db)
-    log = Table('host_log', metadata,
-                Column('hostname', String(256), primary_key=True),
-                Column('status', Integer),
-                Column('timestamp', DateTime, primary_key=True),
-                Column('ipv4', String(32)),
-                Column('ipv6', String(256)),
-                )
+    log = Table(
+        'host_log',
+        metadata,
+        Column('hostname', String(256), primary_key=True),
+        Column('status', Integer),
+        Column('timestamp', DateTime, primary_key=True),
+        Column('ipv4', String(32)),
+        Column('ipv6', String(256)),
+    )
     try:
         log.create()
     except Exception:
@@ -40,6 +42,7 @@ def get_homedump():
         return homedump
     except Exception as e:
         import traceback
+
         traceback.print_exc()
         print('file not found', e)
         return {}
@@ -58,7 +61,6 @@ def get_active_hosts(homedump):
     hosts = []
     now = datetime.utcnow()
     for host, last_seen in sorted(homedump.items()):
-        if now - last_seen < timedelta(minutes=last_seen_delta-2):
+        if now - last_seen < timedelta(minutes=last_seen_delta - 2):
             hosts.append(host)
     return sorted(hosts)
-

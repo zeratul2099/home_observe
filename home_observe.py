@@ -43,8 +43,9 @@ def show_database_log(hostname=None):
             timestamp=row.timestamp.strftime('%d.%m.%Y %H:%M:%S'),
             ipv4=row.ipv4,
             ipv6=row.ipv6,
+            mac=row.mac,
         )
-        print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}'.format(**entry))
+        print('{shortname:20s}\t{status}\t{timestamp}\t{ipv4:15}\t{ipv6}\t{mac}'.format(**entry))
 
 
 def send_message_retry(header, message, retries=3):

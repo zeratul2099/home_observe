@@ -78,7 +78,8 @@ def home(log):
     result = os.popen(nmap_command)
     notify_list = []
     seen_hosts = []
-    for line in result.readlines():
+    lines = result.readlines()
+    for idx, line in enumerate(lines):
         if 'done' in line:
             print(line)
         if 'scan report' in line:
@@ -88,11 +89,19 @@ def home(log):
             seen_hosts.append(host)
             ago = now - last_seen
             print('%s last seen %s ago' % (host, now - last_seen))
+            try:
+                mac_line = lines[idx+2]
+                if 'MAC Address' in mac_line:
+                    mac = mac_line.split(' ')[2]
+                else:
+                    mac = None
+            except IndexError:
+                mac = None
             if ago > timedelta(minutes=last_seen_delta):
                 print('NOTIFY', host)
                 ipv4, ipv6 = get_addresses(host)
                 insert = log.insert()
-                insert.execute(hostname=host, status=1, timestamp=now, ipv4=ipv4, ipv6=ipv6)
+                insert.execute(hostname=host, status=1, timestamp=now, ipv4=ipv4, ipv6=ipv6, mac=mac)
                 try:
                     offline_notified.remove(host)
                 except KeyError:

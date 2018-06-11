@@ -25,6 +25,7 @@ def get_database():
         Column('timestamp', DateTime, primary_key=True),
         Column('ipv4', String(32)),
         Column('ipv6', String(256)),
+        Column('mac', String(32)),
     )
     try:
         log.create()

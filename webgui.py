@@ -37,6 +37,7 @@ def main(hostname=None):
             timestamp=pytz.utc.localize(row.timestamp).astimezone(cet).strftime('%d.%m.%Y %H:%M:%S'),
             ipv4=row.ipv4,
             ipv6=row.ipv6,
+            mac=row.mac,
         )
         result.append(entry)
     return render_template('webgui.html', result=result, hostname=hostname, page=page, maxpages=maxpages)

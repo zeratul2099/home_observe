@@ -20,7 +20,7 @@
             </h4>
             <table>
                 <tr class='tablehdr'>
-                    <th>Hostname</th><th>Status</th><th>Timestamp</th><th>IPv4</th><th>IPv6</th>
+                    <th>Hostname</th><th>Status</th><th>Timestamp</th><th>IPv4</th><th>IPv6</th><th>MAC</th>
                 </tr>
             {% for entry in result %}
                 <tr>
@@ -29,6 +29,7 @@
                     <td>{{ entry.timestamp }}</td>
                     <td>{{ entry.ipv4 }}</td>
                     <td>{{ entry.ipv6 }}</td>
+                    <td>{{ entry.mac }}</td>
                 </tr>
             {% endfor %}
             </table>
